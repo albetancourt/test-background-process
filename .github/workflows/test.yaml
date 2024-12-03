@@ -1,0 +1,25 @@
+name: Netcat Port Test
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  netcat-port-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # - name: Checkout Code
+      #   uses: actions/checkout@v3
+
+      - name: Open Port with Netcat
+        run: |
+          nohup nc -l 3000 &
+
+      - name: Wait for Port to Open
+        run: sleep 5
+
+      - name: Check Port with Netcat
+        run: |
+          nc -zv localhost 3000
