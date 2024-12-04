@@ -1,4 +1,4 @@
-name: Netcat Port Test
+name: Port Test
 
 on:
   push:
@@ -20,10 +20,17 @@ jobs:
 
       - name: Start Go server
         run: |
-          nohup go run server.go &
+          go build -o server server.go
+          nohup ./server &
+
           echo "Waiting for the server to start..."
           sleep 5
 
-      - name: Test server with curl
+      - name: Test server
         run: |
-          curl -vz http://localhost:3000
+          nc -vz localhost 3000
+
+      - name: Show output
+        run: |
+          echo "Print output..."
+          cat nohup.out
