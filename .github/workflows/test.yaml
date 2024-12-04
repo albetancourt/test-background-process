@@ -15,11 +15,11 @@ jobs:
 
       - name: Open Port with Netcat
         run: |
-          nohup nc -l 3000 &
+          nohup nc -4 -l 3000 &
 
       - name: Wait for Port to Open
         run: sleep 5
 
       - name: Check Port with Netcat
         run: |
-          nc -zv localhost 3000
+          nc -zv -4 localhost 3000
