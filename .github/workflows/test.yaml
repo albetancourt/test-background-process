@@ -10,16 +10,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # - name: Checkout Code
-      #   uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      - name: Open Port with Netcat
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.20
+
+      - name: Start Go server
         run: |
-          nohup nc -l 3000 &
+          nohup go run server.go &
+          echo "Waiting for the server to start..."
+          sleep 5
 
-      - name: Wait for Port to Open
-        run: sleep 5
-
-      - name: Check Port with Netcat
+      - name: Test server with curl
         run: |
-          nc -vz localhost 3000
+          curl -vz http://localhost:3000
