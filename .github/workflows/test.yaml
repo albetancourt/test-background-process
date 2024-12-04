@@ -1,36 +1,59 @@
-name: Port Test
+name: Go Build and Test
 
 on:
   push:
     branches:
       - main
+  pull_request:
 
 jobs:
-  netcat-port-test:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repository
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      # Step 2: Set up Go environment
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: 1.20
+          go-version: "1.21" # Specify the desired Go version
 
-      - name: Start Go server
+      # Step 3: Install dependencies
+      - name: Install Dependencies
+        run: go mod tidy
+
+      # Step 4: Build the Go application
+      - name: Build Application
+        env:
+          CGO_ENABLED: 0
         run: |
+          echo "Building the application..."
           go build -o server server.go
-          nohup ./server &
 
-          echo "Waiting for the server to start..."
+      # Step 6: Verify the server binary
+      - name: Verify Server Binary
+        run: |
+          if [ -f "./server" ]; then
+            echo "Server binary built successfully!"
+          else
+            echo "Failed to build server binary!"
+            exit 1
+          fi
+
+      # Step 7: Run the server (Optional step to test deployment)
+      - name: Start Server in Background
+        run: |
+          echo "Starting the server in the background..."
+          nohup ./server > server.log 2>&1 &
           sleep 5
+          curl -f http://localhost:3000 || exit 1
 
-      - name: Test server
+      # Step 8: Cleanup (Optional)
+      - name: Cleanup
         run: |
-          nc -vz localhost 3000
-
-      - name: Show output
-        run: |
-          echo "Print output..."
-          cat nohup.out
+          echo "Cleaning up..."
+          pkill -f './server' || true
+          rm -f server server.log
