@@ -49,6 +49,9 @@ jobs:
           echo "Starting the server in the background..."
           nohup ./server > server.log 2>&1 &
           sleep 5
+
+      - name: Test connection
+        run: |
           curl -f http://localhost:3000 || exit 1
 
       # Step 8: Cleanup (Optional)
